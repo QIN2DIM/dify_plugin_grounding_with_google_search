@@ -8,6 +8,7 @@ from google import genai
 from google.genai import types
 from pydantic import BaseModel, Field
 import json
+from loguru import logger
 
 
 class ToolPayload(BaseModel):
@@ -26,7 +27,7 @@ class Ref(BaseModel):
 
 class GroundingWithGoogleSearchTool(Tool):
     def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage]:
-        print(f"Grounding - {json.dumps(tool_parameters, indent=2, ensure_ascii=False)}")
+        logger.debug(f"Grounding - {json.dumps(tool_parameters, indent=2, ensure_ascii=False)}")
 
         tp = ToolPayload(**tool_parameters)
 
@@ -61,4 +62,7 @@ class GroundingWithGoogleSearchTool(Tool):
                 metadata["refs"].append(Ref(link=web["uri"], title=web["title"]))
 
         yield self.create_text_message(response.text)
+        logger.debug(f"Answer {response.text}")
+
         yield self.create_json_message(metadata)
+        logger.debug(f"Metadata {metadata}")

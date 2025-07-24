@@ -2,7 +2,7 @@
 
 ```bash
 mkdir -p difypkg
-./dify-plugin-windows-amd64.exe plugin package grounding_with_google_search/ -o difypkg/grounding_with_google_search-0.0.1.difypkg
+./dify-plugin-windows-amd64.exe plugin package grounding_with_google_search/ -o difypkg/grounding_with_google_search-0.0.2.difypkg
 ```
 
 ```bash
