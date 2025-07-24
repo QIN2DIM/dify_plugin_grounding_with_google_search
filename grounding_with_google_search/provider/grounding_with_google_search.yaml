@@ -1,0 +1,17 @@
+identity:
+  author: "qin2dim"
+  name: "grounding_with_google_search"
+  label:
+    en_US: "grounding_with_google_search"
+    zh_Hans: "grounding_with_google_search"
+    pt_BR: "grounding_with_google_search"
+  description:
+    en_US: "Gemini Grounding with Google Search"
+    zh_Hans: "Gemini Grounding with Google Search"
+    pt_BR: "Gemini Grounding with Google Search"
+  icon: "icon.svg"
+tools:
+  - tools/grounding_with_google_search.yaml
+extra:
+  python:
+    source: provider/grounding_with_google_search.py

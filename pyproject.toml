@@ -1,0 +1,22 @@
+[project]
+name = "dify-plugin-grounding-with-google-search"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dify-plugin>=0.4.2",
+    "google-genai>=1.27.0",
+    "ipykernel>=6.30.0",
+    "ipywidgets>=8.1.7",
+    "jupyterlab-language-pack-zh-cn>=4.4.post0",
+    "notebook>=7.4.4",
+    "pandas-stubs>=2.3.0.250703",
+    "pip>=25.1.1",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "ruff>=0.12.4",
+]
