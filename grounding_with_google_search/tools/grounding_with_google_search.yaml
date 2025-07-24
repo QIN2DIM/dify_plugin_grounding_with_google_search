@@ -11,6 +11,8 @@ description:
     zh_Hans: "Gemini Grounding with Google Search"
     pt_BR: "Gemini Grounding with Google Search"
   llm: "Gemini Grounding with Google Search"
+features:
+  - history-messages
 parameters:
   - name: query
     type: string
@@ -59,14 +61,29 @@ parameters:
     type: boolean
     required: false
     default: false
+    form: form
     label:
       en_US: Thinking mode
       zh_Hans: 思考模式
       pt_BR: Thinking mode
     human_description:
-      en_US: “Enable thinking mode (no budget limit, only for flash models)”
+      en_US: "Enable thinking mode (no budget limit, only for flash models)"
       zh_Hans: "启用思考模式（不限定预算）"
-      pt_BR: “Enable thinking mode (no budget limit, only for flash models)”
+      pt_BR: "Enable thinking mode (no budget limit, only for flash models)"
+  - name: parse_grounding_chunks
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: convert sources
+      zh_Hans: 追溯信源
+      pt_BR: convert sources
+    human_description:
+      en_US: Convert the redirect link to the real URL
+      zh_Hans: 转换重定向链接到真实的网址
+      pt_BR: Convert the redirect link to the real URL
+    llm_description: Convert the redirect link to the real URL
 extra:
   python:
     source: tools/grounding_with_google_search.py

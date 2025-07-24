@@ -12,7 +12,7 @@ description:
   ja_JP: Gemini Grounding with Google Search
   zh_Hans: Gemini Grounding with Google Search
   pt_BR: Gemini Grounding with Google Search
-icon: icon.svg
+icon: icon.jpg
 resource:
   memory: 268435456
   permission:
@@ -37,7 +37,7 @@ plugins:
   tools:
     - provider/grounding_with_google_search.yaml
 meta:
-  version: 0.0.1
+  version: 0.0.2
   arch:
     - amd64
     - arm64

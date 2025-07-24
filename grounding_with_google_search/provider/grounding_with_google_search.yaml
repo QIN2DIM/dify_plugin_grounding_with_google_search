@@ -1,3 +1,13 @@
+credentials_for_provider:
+  api_key:
+    label:
+      en_US: GEMINI_API_KEY
+      ja_JP: GEMINI_API_KEY
+      zh_Hans: GEMINI_API_KEY
+    required: false
+    type: secret-input
+    url: https://aistudio.google.com/apikey
+
 identity:
   author: "qin2dim"
   name: "grounding_with_google_search"
@@ -9,7 +19,7 @@ identity:
     en_US: "Gemini Grounding with Google Search"
     zh_Hans: "Gemini Grounding with Google Search"
     pt_BR: "Gemini Grounding with Google Search"
-  icon: "icon.svg"
+  icon: "icon.jpg"
 tools:
   - tools/grounding_with_google_search.yaml
 extra:
