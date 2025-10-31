@@ -4,13 +4,11 @@ identity:
   label:
     en_US: "grounding_with_google_search"
     zh_Hans: "grounding_with_google_search"
-    pt_BR: "grounding_with_google_search"
 description:
   human:
     en_US: "Gemini Grounding with Google Search"
-    zh_Hans: "Gemini Grounding with Google Search"
-    pt_BR: "Gemini Grounding with Google Search"
-  llm: "Gemini Grounding with Google Search"
+    zh_Hans: "一个基于上下文的高级问答与核查工具。当需要对特定领域的复杂信息（如法律条款、财报数据、股价、市场指数）进行核查，或一次性查询若干个条线索时使用。输入不是简单的关键词，而是一段结构化文本，需包含：【背景信息】描述清楚你正在解决什么问题【已知线索】知道了其中哪些信息【待查问题】需要查询哪些未知信息。你的已知信息越少推理过程越困惑时，你提供的背景信息应当越详细具体。"
+  llm: "【SubAgent】一个基于上下文的高级问答与核查工具。当需要对特定领域的复杂信息进行核查，或一次性查询若干个条线索时使用。输入不是简单的关键词，而是一段结构化文本，需包含：【背景信息】描述清楚你正在解决什么问题【已知线索】知道了其中哪些信息【待查问题】需要查询哪些未知信息。你的已知信息越少推理过程越困惑时，你提供的背景信息应当越详细具体。"
 features:
   - history-messages
 parameters:
@@ -20,12 +18,10 @@ parameters:
     label:
       en_US: Query string
       zh_Hans: 查询语句
-      pt_BR: Query string
     human_description:
       en_US: "Gemini Grounding with Google Search"
       zh_Hans: "Gemini Grounding with Google Search"
-      pt_BR: "Gemini Grounding with Google Search"
-    llm_description: "Gemini Grounding with Google Search"
+    llm_description: "上下文搜索引擎查询语句，需包含：【背景信息】【已知线索】和【待查问题】这三个关键的结构化信息。如若查询与`时间`高度敏感，需在背景信息和待查问题中强调。"
     form: llm
   - name: model_name
     type: select
@@ -34,27 +30,22 @@ parameters:
     label:
       en_US: Model name
       zh_Hans: 模型名称
-      pt_BR: Model name
     options:
       - label:
           en_US: Gemini 2.5 Flash
           zh_Hans: Gemini 2.5 Flash
-          pt_BR: Gemini 2.5 Flash
         value: "gemini-2.5-flash"
       - label:
           en_US: Gemini 2.5 Pro
           zh_Hans: Gemini 2.5 Pro
-          pt_BR: Gemini 2.5 Pro
         value: "gemini-2.5-pro"
       - label:
           en_US: Gemini 2.5 Flash Lite
           zh_Hans: Gemini 2.5 Flash Lite
-          pt_BR: Gemini 2.5 Flash Lite
         value: "gemini-2.5-flash-lite"
     human_description:
       en_US: "Select a model to use the tool"
       zh_Hans: "选择使用工具的模型"
-      pt_BR: "Select a model to use the tool"
     llm_description: "选择使用工具的模型"
     form: form
   - name: thinking_mode
@@ -65,11 +56,9 @@ parameters:
     label:
       en_US: Thinking mode
       zh_Hans: 思考模式
-      pt_BR: Thinking mode
     human_description:
       en_US: "Enable thinking mode (no budget limit, only for flash models)"
       zh_Hans: "启用思考模式（不限定预算）"
-      pt_BR: "Enable thinking mode (no budget limit, only for flash models)"
   - name: parse_grounding_chunks
     type: boolean
     required: false
@@ -78,11 +67,9 @@ parameters:
     label:
       en_US: convert sources
       zh_Hans: 追溯信源
-      pt_BR: convert sources
     human_description:
       en_US: Convert the redirect link to the real URL
       zh_Hans: 转换重定向链接到真实的网址
-      pt_BR: Convert the redirect link to the real URL
     llm_description: Convert the redirect link to the real URL
 extra:
   python:

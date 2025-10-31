@@ -25,7 +25,7 @@ colorama==0.4.6
     # via
     #   click
     #   loguru
-dify-plugin==0.4.3
+dify-plugin==0.5.1
     # via dify-plugin-grounding-with-google-search (pyproject.toml)
 dpkt==1.9.8
     # via dify-plugin
@@ -35,7 +35,7 @@ gevent==25.5.1
     # via dify-plugin
 google-auth==2.40.3
     # via google-genai
-google-genai==1.27.0
+google-genai==1.47.0
     # via dify-plugin-grounding-with-google-search (pyproject.toml)
 greenlet==3.2.3
     # via gevent
