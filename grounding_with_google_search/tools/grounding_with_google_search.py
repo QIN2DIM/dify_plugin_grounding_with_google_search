@@ -1,3 +1,4 @@
+import time
 from collections.abc import Generator
 from typing import Any
 
@@ -8,6 +9,9 @@ from google.genai import types
 from pydantic import BaseModel, Field
 import json
 from loguru import logger
+import requests
+import gevent
+from gevent import monkey
 
 
 class ToolPayload(BaseModel):
@@ -27,13 +31,84 @@ class Ref(BaseModel):
 class GroundingWithGoogleSearchTool(Tool):
 
     @staticmethod
+    def decode_url(url: str) -> str:
+        """
+        Decode URL-encoded characters to display readable text (e.g., Chinese characters).
+
+        Args:
+            url: URL that may contain percent-encoded characters
+
+        Returns:
+            Decoded URL with readable characters
+        """
+        from urllib.parse import unquote
+
+        try:
+            return unquote(url)
+        except Exception as e:
+            logger.warning(f"Failed to decode URL: {url[:80]}... Error: {e}")
+            return url
+
+    @staticmethod
+    def resolve_redirect_urls(redirect_urls: list[str], timeout: float = 5.0) -> dict[str, str]:
+        """
+        Concurrently resolve Google redirect URLs to their real destinations using gevent.
+
+        Args:
+            redirect_urls: List of redirect URLs to resolve
+            timeout: HTTP request timeout in seconds
+
+        Returns:
+            Dictionary mapping redirect_url -> real_url
+        """
+        if not redirect_urls:
+            return {}
+
+        # Ensure socket is monkey patched for gevent compatibility
+        if not monkey.is_module_patched("socket"):
+            monkey.patch_socket()
+
+        url_mapping = {}
+        results = []
+
+        def fetch_real_url(_redirect_url: str):
+            """
+            Fetch the real URL from a redirect URL.
+            Appends (redirect_url, real_url) tuple to results list.
+            """
+            try:
+                response = requests.get(_redirect_url, allow_redirects=True, timeout=timeout)
+                _real_url = response.url
+                logger.debug(f"Resolved: {_redirect_url[:80]}... -> {_real_url}")
+                results.append((_redirect_url, _real_url))
+            except Exception as e:
+                logger.warning(
+                    f"Failed to resolve redirect URL: {_redirect_url[:80]}... Error: {e}"
+                )
+                # If resolution fails, keep the original redirect URL
+                results.append((_redirect_url, _redirect_url))
+
+        # Create greenlets for all URLs and spawn them concurrently
+        greenlets = [gevent.spawn(fetch_real_url, url) for url in redirect_urls]
+
+        # Wait for all greenlets to complete
+        gevent.joinall(greenlets)
+
+        # Build the mapping dictionary
+        for redirect_url, real_url in results:
+            url_mapping[redirect_url] = real_url
+
+        return url_mapping
+
+    @staticmethod
     def format_grounded_response_with_footnotes(
-        response_data: types.GenerateContentResponse,
+        response_data: types.GenerateContentResponse, url_mapping: dict[str, str] | None = None
     ) -> str:
         """
         解析 Gemini with Google Search 的响应，将信源作为脚注添加到文本中。
 
         Args:
+            url_mapping:
             response_data: 从 Gemini API 返回的 JSON 响应，已解析为 Python 字典。
 
         Returns:
@@ -119,7 +194,11 @@ class GroundingWithGoogleSearchTool(Tool):
             sorted_sources = sorted(source_map.items(), key=lambda item: item[1]["number"])
 
             for uri, data in sorted_sources:
-                line = f"[{data['number']}] {data['title']}: {uri}"
+                # Use the real URL if mapping is provided, otherwise use original URI
+                display_url = url_mapping.get(uri, uri) if url_mapping else uri
+                # Decode URL-encoded characters to make it readable
+                display_url = GroundingWithGoogleSearchTool.decode_url(display_url)
+                line = f"[{data['number']}] {data['title']}: {display_url}"
                 footnote_lines.append(line)
 
             footnote_section = "\n".join(footnote_lines)
@@ -159,7 +238,32 @@ class GroundingWithGoogleSearchTool(Tool):
             model=tp.model_name, contents=contents, config=generate_content_config
         )
 
-        answer_with_supports = self.format_grounded_response_with_footnotes(response)
+        # Parse redirect URLs if requested
+        url_mapping = {}
+        if tp.parse_grounding_chunks:
+            t0 = time.time()
+            try:
+                # Extract all URIs from grounding chunks
+                redirect_urls = []
+                if response.candidates and response.candidates[0].grounding_metadata:
+                    grounding_metadata = response.candidates[0].grounding_metadata
+                    if grounding_metadata.grounding_chunks:
+                        for chunk in grounding_metadata.grounding_chunks:
+                            if chunk.web and chunk.web.uri:
+                                redirect_urls.append(chunk.web.uri)
+
+                # Resolve redirect URLs concurrently
+                if redirect_urls:
+                    logger.debug(f"Resolving {len(redirect_urls)} redirect URLs...")
+                    url_mapping = self.resolve_redirect_urls(redirect_urls)
+                    logger.debug(f"Resolved {len(url_mapping)} URLs")
+            except Exception as e:
+                logger.warning(f"Failed to parse redirect URLs: {e}")
+
+            te = time.time()
+            logger.debug(f"Parsing redirect URLs took {te - t0:.2f} seconds")
+
+        answer_with_supports = self.format_grounded_response_with_footnotes(response, url_mapping)
 
         yield self.create_text_message(answer_with_supports)
         logger.debug(f"Answer:\n{answer_with_supports}")
